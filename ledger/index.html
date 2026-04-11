@@ -8,22 +8,21 @@
 :root{--gold:#c9a227;--gl:#e8c84a;--gd:#7a6118;--bg:#07080d;--b2:#0d0f18;--b3:#111420;--bor:rgba(201,162,39,.2);--tx:#d4c8a8;--td:#7a7260;--tb:#f0e6c8;--gr:#5a9;--re:#d47070;--bl:#5599cc;--te:#4a9988;--pu:#9966cc}
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{background:var(--bg);color:var(--tx);font-family:"Noto Serif SC",serif;font-size:12px;line-height:1.6;min-height:100vh}
-.page{max-width:860px;margin:0 auto;padding:20px 14px}
-.hd{text-align:center;padding:20px 0 14px;border-bottom:1px solid var(--bor);margin-bottom:14px}
-.hd h1{font-family:Cinzel,serif;font-size:17px;color:var(--gl);letter-spacing:.14em}
-.hd .ht{font-size:10px;color:var(--td);letter-spacing:.08em;margin-top:3px}
-.hd .ts{margin-top:8px;display:inline-flex;align-items:center;gap:6px;background:rgba(201,162,39,.08);border:1px solid var(--bor);padding:4px 12px;font-size:10px;color:var(--gold)}
+.pg{max-width:860px;margin:0 auto;padding:16px 12px}
+.hd{text-align:center;padding:18px 0 12px;border-bottom:1px solid var(--bor);margin-bottom:12px}
+.hd h1{font-family:Cinzel,serif;font-size:16px;color:var(--gl);letter-spacing:.14em;font-weight:700}
+.ht{font-size:10px;color:var(--td);letter-spacing:.08em;margin-top:3px}
+.ts{margin-top:8px;display:inline-flex;align-items:center;gap:6px;background:rgba(201,162,39,.08);border:1px solid var(--bor);padding:4px 12px;font-size:10px;color:var(--gold)}
 .ov{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:12px}
 .oc{background:var(--b2);border:1px solid var(--bor);padding:9px 11px;position:relative;overflow:hidden}
 .oc::before{content:"";position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
 .ol{font-size:9px;color:var(--td);letter-spacing:.1em;text-transform:uppercase;margin-bottom:3px}
-.ov2{font-size:16px;font-weight:700;font-family:Cinzel,serif}
+.ov2{font-family:Cinzel,serif;font-size:15px;font-weight:700}
 .og{color:var(--gr)}.oa{color:var(--gl)}.ob{color:var(--bl)}.or{color:var(--re)}
 .on{font-size:9px;color:var(--td);margin-top:2px;font-style:italic}
 .tgs{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:12px}
 .tg{font-size:9px;padding:2px 6px;border-radius:2px;border:1px solid}
 .ta{background:rgba(201,162,39,.1);color:var(--gold);border-color:rgba(201,162,39,.25)}
-.tb2{background:rgba(85,153,204,.1);color:var(--bl);border-color:rgba(85,153,204,.25)}
 .tc{background:rgba(212,112,112,.1);color:var(--re);border-color:rgba(212,112,112,.25)}
 .td2{background:rgba(74,153,136,.1);color:var(--te);border-color:rgba(74,153,136,.25)}
 .tp{background:rgba(153,102,204,.1);color:var(--pu);border-color:rgba(153,102,204,.25)}
@@ -31,12 +30,13 @@ html,body{background:var(--bg);color:var(--tx);font-family:"Noto Serif SC",serif
 .sh{background:var(--b2);border:1px solid var(--bor);border-bottom:none;padding:7px 12px;cursor:pointer;display:flex;align-items:center;gap:7px;font-size:11px;color:var(--gold);letter-spacing:.06em;user-select:none}
 .sb{background:var(--b3);border:1px solid var(--bor);padding:11px}
 .et{display:flex;gap:3px;flex-wrap:wrap;margin-bottom:9px}
-.ev{padding:4px 9px;font-size:10px;border:1px solid var(--bor);background:var(--b2);color:var(--td);cursor:pointer;transition:all .2s}
+.ev{padding:4px 9px;font-size:10px;border:1px solid var(--bor);background:var(--b2);color:var(--td);cursor:pointer;font-family:"Noto Serif SC",serif}
 .ev.ea{background:rgba(201,162,39,.1);color:var(--gold);border-color:var(--gd)}
 .ep{display:none}.ep.ea{display:block}
 table{width:100%;border-collapse:collapse;font-size:10px;margin:5px 0}
 th{text-align:left;padding:4px 7px;background:var(--b2);color:var(--gd);font-size:9px;border-bottom:1px solid var(--bor);font-weight:400}
 td{padding:4px 7px;border-bottom:1px solid rgba(255,255,255,.03)}
+tr:hover td{background:rgba(255,255,255,.015)}
 .dp{color:var(--gr)}.dn{color:var(--re)}.dz{color:var(--td)}
 .pi{margin:6px 0}
 .ph{display:flex;justify-content:space-between;margin-bottom:2px;font-size:10px}
@@ -60,148 +60,125 @@ td{padding:4px 7px;border-bottom:1px solid rgba(255,255,255,.03)}
 .chip{display:inline-flex;align-items:center;gap:3px;padding:2px 6px;background:var(--b2);border:1px solid var(--bor);font-size:10px;margin:2px}
 .dot{width:5px;height:5px;border-radius:50%;background:var(--gr);flex-shrink:0}
 .dot.w{background:#e8a020}.dot.i{background:var(--td)}
-.ft{text-align:center;font-size:9px;color:var(--td);font-style:italic;padding:12px 0 3px;border-top:1px solid var(--bor);margin-top:14px}
-.em{text-align:center;padding:32px;color:var(--td);font-style:italic;font-size:13px}
-.dbg{background:rgba(201,162,39,.05);border:1px solid var(--bor);padding:8px;margin:8px 0;font-size:10px;color:var(--td);font-family:monospace;word-break:break-all}
-@media(max-width:500px){.ov{grid-template-columns:1fr}}
+.ft{text-align:center;font-size:9px;color:var(--td);font-style:italic;padding:12px 0 3px;border-top:1px solid var(--bor);margin-top:12px;letter-spacing:.08em}
+.em{text-align:center;padding:32px;color:var(--td);font-style:italic}
 </style>
+<script>
+async function init() {
+  var app = document.getElementById('_app');
+  var raw = '';
+
+  try {
+    var vars = await getVariables();
+    raw = (vars && vars['LatestLedger']) || '';
+  } catch(err) {
+    app.innerHTML = '<div class="em">⚗️ getVariables() 失败: ' + err.message + '<br><small>' + err.stack + '</small></div>';
+    return;
+  }
+
+  if (!raw || !raw.trim()) {
+    app.innerHTML = '<div class="em">⚗️ LatestLedger 变量为空<br><small style="font-size:10px;margin-top:6px;display:block">请确认变量已正确保存</small></div>';
+    return;
+  }
+
+  function e(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+  function rx(re, s, i) { var m = s.match(re); return m ? (i != null ? m[i] : m[0]) : '—'; }
+  function rxa(re, s) { return [...s.matchAll(re)]; }
+
+  var profit = rx(/时段损益结算.*?Δ\s*\*\*(.*?)\*\*/, raw, 1);
+  var hours  = rx(/本次结算历时.*?(\d+\.?\d*\s*h)/, raw, 1);
+  var funds  = rx(/期末总流动资金.*?=\s*([\d,\.]+)\s*G/, raw, 1);
+  var recv   = rx(/应收.*?([\d,]+)\s*G/, raw, 1);
+  var time   = rx(/账目结算时间.*?(\d{3,4}年.{3,28}?\d{2}:\d{2})/, raw, 1).replace(/\*\*/g,'');
+  var isPos  = profit.indexOf('+') >= 0;
+  var cfPc   = rx(/珍珠币\s*\(PC\):.*?期末([\d,\.]+)/, raw, 1);
+  var cfG    = rx(/金币\s*\(G\):.*?期末([−\-]?[\d,\.]+)/, raw, 1);
+
+  var tags = [], m;
+  if ((m = raw.match(/药剂需求.*?(×[\d\.]+)/)))    tags.push({c:'ta', t:'💊 '+m[1]});
+  if ((m = raw.match(/护卫需求.*?(\+\d+%)/)))       tags.push({c:'tc', t:'⚔️ '+m[1]});
+  if ((m = raw.match(/灾害.*?\*\*([^*]+?)\*\*/)))   tags.push({c:'tc', t:'🌊 '+m[1].substring(0,20)});
+  if ((m = raw.match(/研究[\/]工艺.*?\*\*([^*]+?)\*\*/))) tags.push({c:'tp', t:'⚗️ '+m[1].substring(0,20)});
+  if ((m = raw.match(/组织[\/]士气.*?\*\*([^*]+?)\*\*/))) tags.push({c:'td2',t:'✦ '+m[1].substring(0,20)});
+
+  var eB = {}, er = /🏘️\s*\[(.*?)\]([\s\S]*?)(?=🏘️\s*\[|生产效率统计|# ---)/g, em2;
+  while ((em2 = er.exec(raw)) !== null) eB[em2[1]] = em2[2];
+  var ents = Object.keys(eB);
+
+  function pInv(b) {
+    return rxa(/[├└]─\s*([一-龥\w·（）()\/\s\-\.]+?):\s*期初[\d\.]+\s*.*?期末([\d\.]+\s*[一-龥\w]*)\s*\(Δ([^)]+)/g, b)
+      .map(x => ({n:x[1].trim(), e:x[2].trim(), d:x[3].trim()}));
+  }
+  function pP(b) {
+    return rxa(/🏗️\s*(.*?):\s*\[([█░]+)\]\s*(\d+)%/g, b).map(x => ({n:x[1], p:parseInt(x[3])}));
+  }
+  function iT(r) {
+    if (!r.length) return '';
+    var h = '<table><tr><th>品类</th><th>期末</th><th>Δ</th></tr>';
+    r.forEach(x => { var dc = x.d.indexOf('-')>=0?'dn':(x.d.indexOf('+')>=0&&x.d!=='+0'?'dp':'dz'); h += '<tr><td>'+e(x.n)+'</td><td>'+e(x.e)+'</td><td class="'+dc+'">'+e(x.d)+'</td></tr>'; });
+    return h + '</table>';
+  }
+  function pB(pr, l) {
+    if (!pr.length) return '<div style="color:var(--td);font-style:italic;font-size:10px">暂无项目</div>';
+    return pr.slice(0, l||99).map(p => {
+      var bc = p.p===0?'br2':p.p<30?'bk':'bg';
+      return '<div class="pi"><div class="ph"><span class="pn">'+e(p.n)+'</span><span class="pv">'+p.p+'%</span></div><div class="bt"><div class="bf '+bc+'" style="width:'+p.p+'%"></div></div></div>';
+    }).join('');
+  }
+  function pR(b) {
+    return rxa(/风险提示[：:]\s*([^
+|\/]+)/g, b).map(x => '<div class="ra">⚠ '+e(x[1].trim())+'</div>').join('');
+  }
+  function pM(b) {
+    return rxa(/[├└]─\s*([一-龥\w\s\.]+):\s*1\s*\(([^)]+)\)/g, b).map(x => {
+      var dc = x[2].indexOf('告急')>=0?'w':x[2].indexOf('待机')>=0?'i':'';
+      return '<div class="chip"><span class="dot '+dc+'"></span>'+e(x[1].trim())+'</div>';
+    }).join('');
+  }
+
+  var pAll = pP(raw), h = '';
+  h += '<div class="hd"><div class="ht">⚗️ TOTTERHAM ESTATE · THE KEEPER'S LEDGER</div><h1>'+e(time)+'</h1><div class="ts">🕐 结算历时 '+e(hours)+'</div></div>';
+  h += '<div class="ov">';
+  h += '<div class="oc"><div class="ol">时段损益</div><div class="ov2 '+(isPos?'og':'or')+'">'+e(profit)+'</div><div class="on">'+e(hours)+' 周期</div></div>';
+  h += '<div class="oc"><div class="ol">产业流动资金</div><div class="ov2 oa">'+e(funds)+' G</div><div class="on">折算基准货币</div></div>';
+  h += '<div class="oc"><div class="ol">应收账款</div><div class="ov2 ob">'+e(recv)+' G</div><div class="on">待月底回款</div></div>';
+  h += '</div>';
+  if (tags.length) { h += '<div class="tgs">'; tags.forEach(t => { h += '<span class="tg '+t.c+'">'+e(t.t)+'</span>'; }); h += '</div>'; }
+  h += '<div class="sc"><div class="sh" onclick="tog(this)">🏘️ 资产分布</div><div class="sb">';
+  if (ents.length) {
+    h += '<div class="et">';
+    ents.forEach((n,i) => { h += '<div class="ev'+(i===0?' ea':'')+'" onclick="sT(this,'ep'+i+'')">'+e(n.length>14?n.substring(0,14)+'…':n)+'</div>'; });
+    h += '</div>';
+    ents.forEach((n,i) => {
+      var b = eB[n];
+      h += '<div class="ep'+(i===0?' ea':'')+'" id="ep'+i+'">'+iT(pInv(b))+pR(b)+'<div style="margin-top:6px">'+pM(b)+'</div>';
+      var pr = pP(b); if (pr.length) h += '<div class="od"><span>待执行项目</span></div>'+pB(pr,4);
+      h += '</div>';
+    });
+  } else { h += '<div style="color:var(--td);font-style:italic">暂无实体数据</div>'; }
+  h += '</div></div>';
+  h += '<div class="sc"><div class="sh" onclick="tog(this)">💰 资金流水</div><div class="sb"><div class="cf"><div class="cft">期末流动资金</div>';
+  h += '<div class="cr"><span class="cl">珍珠币 (PC)</span><span class="cv" style="color:var(--pu)">'+e(cfPc)+' PC</span></div>';
+  h += '<div class="cr"><span class="cl">金币 (G)</span><span class="cv" style="color:var(--bl)">'+e(cfG)+' G</span></div>';
+  h += '<div class="cdi"></div><div class="cr ct"><span class="cl">折算总计</span><span class="cv">'+e(funds)+' G</span></div></div></div></div>';
+  if (pAll.length) { h += '<div class="sc"><div class="sh" onclick="tog(this)">🧭 运营项目追踪</div><div class="sb">'+pB(pAll)+'</div></div>'; }
+  h += '<div class="ft">Totterham Estate · Confidential Ledger · ⚗</div>';
+  app.innerHTML = h;
+}
+
+function tog(el) { var b = el.nextElementSibling; b.style.display = b.style.display==='none'?'block':'none'; }
+function sT(el, id) {
+  var s = el.closest('.sb');
+  s.querySelectorAll('.ev').forEach(x => x.classList.remove('ea'));
+  el.classList.add('ea');
+  s.querySelectorAll('.ep').forEach(x => x.classList.remove('ea'));
+  document.getElementById(id).classList.add('ea');
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
 </head>
 <body>
-<div class="page" id="app">
-  <div class="em">⚗️ 正在读取账本数据...</div>
-</div>
-<script>
-(function(){
-var raw='';
-// Try multiple sources
-try{raw=localStorage.getItem('st_ledger_v1')||'';}catch(ex){}
-if(!raw)try{raw=window.__ledger||'';}catch(ex){}
-if(!raw)try{raw=window.parent&&window.parent.__ledger||'';}catch(ex){}
-
-var app=document.getElementById('app');
-
-if(!raw||!raw.trim()){
-  app.innerHTML='<div class="em">⚗️ 账本变量为空<br><small style="font-size:10px;margin-top:6px;display:block">LatestLedger 变量未读取到内容</small></div>'
-  +'<div class="dbg">DEBUG: localStorage key "st_ledger_v1" = '+(function(){try{var v=localStorage.getItem("st_ledger_v1");return v?v.substring(0,80)+"...":"(empty)";}catch(e){return"(error: "+e.message+")";}}())+'</div>';
-  return;
-}
-
-function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
-function rx(re,s,i){var m=s.match(re);return m?(i!=null?m[i]:m[0]):"—";}
-function rxa(re,s){return[...s.matchAll(re)];}
-
-var profit=rx(/时段损益结算.*?Δ\s*\*\*(.*?)\*\*/,raw,1);
-var hours=rx(/本次结算历时.*?(\d+\.?\d*\s*h)/,raw,1);
-var funds=rx(/期末总流动资金.*?=\s*([\d,\.]+)\s*G/,raw,1);
-var recv=rx(/应收.*?([\d,]+)\s*G/,raw,1);
-var time=rx(/账目结算时间.*?(\d{3,4}年.{3,28}?\d{2}:\d{2})/,raw,1).replace(/\*\*/g,"");
-var isPos=profit.indexOf("+")>=0;
-var cfPc=rx(/珍珠币\s*\(PC\):.*?期末([\d,\.]+)/,raw,1);
-var cfG=rx(/金币\s*\(G\):.*?期末([−\-]?[\d,\.]+)/,raw,1);
-
-var tags=[];
-var m;
-if((m=raw.match(/药剂需求.*?(×[\d\.]+)/)))tags.push({c:"ta",t:"💊 "+m[1]});
-if((m=raw.match(/护卫需求.*?(\+\d+%)/)))tags.push({c:"tc",t:"⚔️ 护卫 "+m[1]});
-if((m=raw.match(/灾害.*?\*\*([^*]+?)\*\*/)))tags.push({c:"tc",t:"🌊 "+m[1].substring(0,18)});
-if((m=raw.match(/研究[\/]工艺.*?\*\*([^*]+?)\*\*/)))tags.push({c:"tp",t:"⚗️ "+m[1].substring(0,18)});
-if((m=raw.match(/组织[\/]士气.*?\*\*([^*]+?)\*\*/)))tags.push({c:"td2",t:"✦ "+m[1].substring(0,18)});
-if((m=raw.match(/市况[\/]行情.*?\*\*([^*]+?)\*\*/)))tags.push({c:"ta",t:"📈 "+m[1].substring(0,18)});
-
-var eBlocks={};
-var er=/🏘️\s*\[(.*?)\]([\s\S]*?)(?=🏘️\s*\[|生产效率统计|# ---)/g,em2;
-while((em2=er.exec(raw))!==null)eBlocks[em2[1]]=em2[2];
-var ents=Object.keys(eBlocks);
-
-function pInv(b){
-  return rxa(/[├└]─\s*([一-龥\w·（）()\/\s\-\.]+?):\s*期初[\d\.]+\s*.*?期末([\d\.]+\s*[一-龥\w]*)\s*\(Δ([^)]+)/g,b)
-    .map(function(x){return{n:x[1].trim(),e:x[2].trim(),d:x[3].trim()};});
-}
-function pProj(b){
-  return rxa(/🏗️\s*(.*?):\s*\[([█░]+)\]\s*(\d+)%/g,b).map(function(x){return{n:x[1],p:parseInt(x[3])};});
-}
-function iT(rows){
-  if(!rows.length)return"";
-  var h="<table><tr><th>品类</th><th>期末</th><th>Δ</th></tr>";
-  rows.forEach(function(r){
-    var dc=r.d.indexOf("-")>=0?"dn":(r.d.indexOf("+")>=0&&r.d!=="+0"?"dp":"dz");
-    h+="<tr><td>"+esc(r.n)+"</td><td>"+esc(r.e)+"</td><td class='"+dc+"'>"+esc(r.d)+"</td></tr>";
-  });
-  return h+"</table>";
-}
-function pB(projs,lim){
-  if(!projs.length)return"<div style='color:var(--td);font-style:italic;font-size:10px'>暂无项目</div>";
-  return projs.slice(0,lim||99).map(function(p){
-    var bc=p.p===0?"br2":p.p<30?"bk":"bg";
-    return"<div class='pi'><div class='ph'><span class='pn'>"+esc(p.n)+"</span><span class='pv'>"+p.p+"%</span></div>"
-      +"<div class='bt'><div class='bf "+bc+"' style='width:"+p.p+"%'></div></div></div>";
-  }).join("");
-}
-function pRisk(b){
-  return rxa(/风险提示[：:]\s*([^
-|\/]+)/g,b).map(function(x){
-    return"<div class='ra'>⚠ "+esc(x[1].trim())+"</div>";
-  }).join("");
-}
-function pMem(b){
-  return rxa(/[├└]─\s*([一-龥\w\s\.]+):\s*1\s*\(([^)]+)\)/g,b).map(function(x){
-    var dc=x[2].indexOf("告急")>=0?"w":x[2].indexOf("待机")>=0?"i":"";
-    return"<div class='chip'><span class='dot "+dc+"'></span>"+esc(x[1].trim())+"</div>";
-  }).join("");
-}
-
-var projAll=pProj(raw);
-var h="";
-h+="<div class='hd'><div class='ht'>⚗️ TOTTERHAM ESTATE · THE KEEPER'S LEDGER</div>";
-h+="<h1>"+esc(time)+"</h1>";
-h+="<div class='ts'>🕐 结算历时 "+esc(hours)+"</div></div>";
-h+="<div class='ov'>";
-h+="<div class='oc'><div class='ol'>时段损益</div><div class='ov2 "+(isPos?"og":"or")+"'>"+esc(profit)+"</div><div class='on'>"+esc(hours)+" 周期</div></div>";
-h+="<div class='oc'><div class='ol'>产业流动资金</div><div class='ov2 oa'>"+esc(funds)+" G</div><div class='on'>折算基准货币</div></div>";
-h+="<div class='oc'><div class='ol'>应收账款</div><div class='ov2 ob'>"+esc(recv)+" G</div><div class='on'>待月底回款</div></div>";
-h+="</div>";
-if(tags.length){h+="<div class='tgs'>";tags.forEach(function(t){h+="<span class='tg "+t.c+"'>"+esc(t.t)+"</span>";});h+="</div>";}
-h+="<div class='sc'><div class='sh' onclick="var b=this.nextElementSibling;b.style.display=b.style.display=='none'?'block':'none'">🏘️ 资产分布</div><div class='sb'>";
-if(ents.length){
-  h+="<div class='et'>";
-  ents.forEach(function(n,i){
-    var sh=n.length>15?n.substring(0,15)+"…":n;
-    h+="<div class='ev"+(i===0?" ea":"")+"' onclick="switchTab(this,'ep"+i+"')">"+esc(sh)+"</div>";
-  });
-  h+="</div>";
-  ents.forEach(function(n,i){
-    var b=eBlocks[n];
-    h+="<div class='ep"+(i===0?" ea":"")+"' id='ep"+i+"'>";
-    h+=iT(pInv(b));
-    h+=pRisk(b);
-    var mem=pMem(b);
-    if(mem)h+="<div style='margin-top:7px'>"+mem+"</div>";
-    var pr=pProj(b);
-    if(pr.length)h+="<div class='od'><span>待执行项目</span></div>"+pB(pr,4);
-    h+="</div>";
-  });
-}else{h+="<div style='color:var(--td);font-style:italic'>暂无实体数据</div>";}
-h+="</div></div>";
-h+="<div class='sc'><div class='sh' onclick="var b=this.nextElementSibling;b.style.display=b.style.display=='none'?'block':'none'">💰 资金流水</div>";
-h+="<div class='sb'><div class='cf'><div class='cft'>期末流动资金</div>";
-h+="<div class='cr'><span class='cl'>珍珠币 (PC)</span><span class='cv' style='color:var(--pu)'>"+esc(cfPc)+" PC</span></div>";
-h+="<div class='cr'><span class='cl'>金币 (G)</span><span class='cv' style='color:var(--bl)'>"+esc(cfG)+" G</span></div>";
-h+="<div class='cdi'></div><div class='cr ct'><span class='cl'>折算总计</span><span class='cv'>"+esc(funds)+" G</span></div></div></div></div>";
-if(projAll.length){
-  h+="<div class='sc'><div class='sh' onclick="var b=this.nextElementSibling;b.style.display=b.style.display=='none'?'block':'none'">🧭 运营项目追踪</div>";
-  h+="<div class='sb'>"+pB(projAll)+"</div></div>";
-}
-h+="<div class='ft'>Totterham Estate · Confidential Ledger · ⚗</div>";
-app.innerHTML=h;
-})();
-
-function switchTab(el,id){
-  var sb=el.closest(".sb");
-  sb.querySelectorAll(".ev").forEach(function(x){x.classList.remove("ea");});
-  el.classList.add("ea");
-  sb.querySelectorAll(".ep").forEach(function(x){x.classList.remove("ea");});
-  document.getElementById(id).classList.add("ea");
-}
-</script>
+<div class="pg" id="_app"><div class="em">⚗️ 正在读取账本数据...</div></div>
 </body>
 </html>

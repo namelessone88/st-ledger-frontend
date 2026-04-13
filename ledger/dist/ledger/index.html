@@ -1,1 +1,1484 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>资产与生产账目 · Ledger</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@300;400;500;600&family=Noto+Sans+SC:wght@300;400;500;600;700&family=Noto+Serif+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ==========================================================================
+   ARCANE OPERATIONS DOSSIER · Ledger Frontend
+   Single-file HTML. No build, no external JS.
+   ========================================================================== */
 
+:root {
+  /* Ink & steel palette */
+  --ink-abyss:      #070a10;
+  --ink-deep:       #0c1119;
+  --ink-mid:        #121825;
+  --ink-surface:    #171e2c;
+  --ink-raised:     #1c2433;
+  --ink-border:     #2a3345;
+  --ink-border-hi:  #3a465e;
+
+  /* Amber & gold accents */
+  --gold-pure:      #e4b866;
+  --gold-warm:      #d4a356;
+  --gold-muted:     #8a6f3e;
+  --gold-faint:     rgba(212, 163, 86, 0.12);
+  --gold-line:      rgba(212, 163, 86, 0.35);
+
+  /* Text */
+  --bone:           #ece8dd;
+  --bone-dim:       #c4bfb0;
+  --steel:          #8a94a6;
+  --steel-dark:     #5a6478;
+  --whisper:        #464f63;
+
+  /* Semantic */
+  --verdant:        #6fcf97;   /* positive */
+  --ember:          #e67858;   /* negative */
+  --crimson:        #c14c4c;
+  --azure:          #5b9cf0;
+  --amethyst:       #9a7bd1;
+  --mint:           #5ec9a8;
+
+  /* Quality (items) */
+  --q-common:       #a8a49a;
+  --q-uncommon:     #6fcf97;
+  --q-rare:         #5b9cf0;
+  --q-epic:         #9a7bd1;
+  --q-legendary:    #e4b866;
+  --q-mythic:       #e67858;
+  --q-unique:       #f4e3a8;
+
+  /* Type */
+  --serif-cn:       "Noto Serif SC", serif;
+  --sans-cn:        "Noto Sans SC", sans-serif;
+  --serif-la:       "Cormorant Garamond", serif;
+  --mono:           "JetBrains Mono", monospace;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body {
+  background: var(--ink-abyss);
+  color: var(--bone);
+  font-family: var(--sans-cn);
+  font-weight: 300;
+  font-size: 14px;
+  line-height: 1.6;
+  letter-spacing: 0.01em;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Ambient atmosphere — subtle vignette + grain */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 20% 0%, rgba(212, 163, 86, 0.05), transparent 60%),
+    radial-gradient(ellipse at 80% 100%, rgba(91, 156, 240, 0.03), transparent 50%),
+    linear-gradient(180deg, var(--ink-abyss) 0%, var(--ink-deep) 100%);
+  pointer-events: none;
+  z-index: 0;
+}
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' seed='3'/%3E%3CfeColorMatrix values='0 0 0 0 0.9  0 0 0 0 0.8  0 0 0 0 0.5  0 0 0 0.04 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 1;
+  mix-blend-mode: overlay;
+  opacity: 0.5;
+}
+
+.dossier {
+  position: relative;
+  z-index: 2;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 32px 40px 80px;
+}
+
+/* ==========================================================================
+   HEADER · Ledger time + settlement gap
+   ========================================================================== */
+
+.header {
+  position: relative;
+  padding-bottom: 28px;
+  margin-bottom: 36px;
+  border-bottom: 1px solid var(--ink-border);
+}
+.header::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -1px;
+  width: 120px;
+  height: 1px;
+  background: var(--gold-pure);
+}
+
+.header__eyebrow {
+  font-family: var(--serif-la);
+  font-style: italic;
+  font-size: 13px;
+  letter-spacing: 0.18em;
+  color: var(--gold-warm);
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.header__title-row {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.header__title {
+  font-family: var(--serif-cn);
+  font-weight: 500;
+  font-size: 32px;
+  letter-spacing: 0.04em;
+  color: var(--bone);
+  line-height: 1.2;
+}
+.header__title .divider {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  margin: 0 12px 6px;
+  background: var(--gold-pure);
+  transform: rotate(45deg);
+}
+
+.header__time {
+  font-family: var(--mono);
+  font-size: 13px;
+  color: var(--steel);
+  text-align: right;
+  line-height: 1.7;
+}
+.header__time .timestamp {
+  display: block;
+  font-size: 18px;
+  color: var(--bone);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  margin-bottom: 2px;
+}
+.header__time .label {
+  font-family: var(--serif-la);
+  font-style: italic;
+  font-size: 11px;
+  color: var(--gold-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+}
+
+.gap-status {
+  margin-top: 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 14px 8px 10px;
+  background: var(--gold-faint);
+  border: 1px solid var(--gold-line);
+  border-radius: 2px;
+  font-size: 12px;
+  color: var(--bone-dim);
+}
+.gap-status__pulse {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--gold-pure);
+  box-shadow: 0 0 12px var(--gold-pure);
+  animation: pulse 2.4s ease-in-out infinite;
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+.gap-status strong {
+  color: var(--gold-pure);
+  font-weight: 500;
+  font-family: var(--mono);
+}
+
+/* ==========================================================================
+   HERO STRIP · Macro stats
+   ========================================================================== */
+
+.hero-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  background: var(--ink-border);
+  border: 1px solid var(--ink-border);
+  margin-bottom: 36px;
+}
+.hero-stat {
+  background: var(--ink-surface);
+  padding: 22px 24px;
+  position: relative;
+  overflow: hidden;
+}
+.hero-stat::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 24px;
+  height: 1px;
+  background: var(--gold-pure);
+}
+.hero-stat__label {
+  font-family: var(--serif-la);
+  font-style: italic;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  color: var(--gold-muted);
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+.hero-stat__value {
+  font-family: var(--mono);
+  font-size: 26px;
+  font-weight: 500;
+  color: var(--bone);
+  letter-spacing: -0.01em;
+  line-height: 1.1;
+}
+.hero-stat__unit {
+  font-family: var(--serif-la);
+  font-size: 14px;
+  color: var(--gold-warm);
+  margin-left: 4px;
+  font-style: italic;
+}
+.hero-stat__delta {
+  display: block;
+  margin-top: 6px;
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--steel);
+}
+.hero-stat__delta.positive { color: var(--verdant); }
+.hero-stat__delta.negative { color: var(--ember); }
+.hero-stat__sub {
+  display: block;
+  margin-top: 6px;
+  font-size: 11px;
+  color: var(--steel-dark);
+  font-family: var(--sans-cn);
+}
+
+/* ==========================================================================
+   SECTION · reusable header
+   ========================================================================== */
+
+.section { margin-bottom: 44px; }
+.section__head {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--ink-border);
+}
+.section__index {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--gold-muted);
+  letter-spacing: 0.1em;
+}
+.section__title {
+  font-family: var(--serif-cn);
+  font-weight: 500;
+  font-size: 20px;
+  letter-spacing: 0.05em;
+  color: var(--bone);
+}
+.section__subtitle {
+  font-family: var(--serif-la);
+  font-style: italic;
+  font-size: 12px;
+  color: var(--steel);
+  margin-left: auto;
+}
+
+/* ==========================================================================
+   FACTORS PANEL
+   ========================================================================== */
+
+.factors {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+.factor-panel {
+  background: var(--ink-surface);
+  border: 1px solid var(--ink-border);
+  padding: 22px 24px;
+  position: relative;
+}
+.factor-panel__title {
+  font-family: var(--serif-la);
+  font-style: italic;
+  font-size: 12px;
+  letter-spacing: 0.2em;
+  color: var(--gold-pure);
+  text-transform: uppercase;
+  margin-bottom: 16px;
+  padding-bottom: 10px;
+  border-bottom: 1px dashed var(--ink-border-hi);
+}
+.factor {
+  display: grid;
+  grid-template-columns: 110px 1fr;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px dotted rgba(138, 111, 62, 0.2);
+  font-size: 13px;
+}
+.factor:last-child { border-bottom: none; padding-bottom: 0; }
+.factor__label {
+  color: var(--gold-muted);
+  font-family: var(--sans-cn);
+  font-size: 12px;
+  white-space: nowrap;
+}
+.factor__value {
+  color: var(--bone-dim);
+  line-height: 1.5;
+}
+.factor__value strong {
+  color: var(--bone);
+  font-weight: 500;
+}
+.factor__meta {
+  display: block;
+  margin-top: 2px;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--steel);
+}
+
+/* ==========================================================================
+   LIQUIDITY · multi-currency
+   ========================================================================== */
+
+.liquidity {
+  background: var(--ink-surface);
+  border: 1px solid var(--ink-border);
+  padding: 28px 32px;
+}
+.liquidity__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--ink-border);
+}
+.liquidity__title {
+  font-family: var(--serif-cn);
+  font-size: 16px;
+  color: var(--bone);
+  font-weight: 500;
+}
+.liquidity__title small {
+  display: block;
+  font-family: var(--serif-la);
+  font-style: italic;
+  font-size: 12px;
+  color: var(--steel);
+  margin-top: 2px;
+  font-weight: 400;
+}
+.liquidity__total {
+  text-align: right;
+  font-family: var(--mono);
+}
+.liquidity__total .label {
+  display: block;
+  font-family: var(--serif-la);
+  font-style: italic;
+  font-size: 11px;
+  color: var(--gold-muted);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+.liquidity__total .value {
+  font-size: 28px;
+  font-weight: 500;
+  color: var(--gold-pure);
+  letter-spacing: -0.01em;
+}
+.liquidity__total .delta {
+  font-size: 12px;
+  color: var(--verdant);
+  margin-left: 8px;
+}
+
+.currency {
+  padding: 14px 0;
+  border-bottom: 1px dashed var(--ink-border);
+}
+.currency:last-child { border-bottom: none; padding-bottom: 0; }
+.currency__row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-family: var(--mono);
+  font-size: 13px;
+}
+.currency__name {
+  min-width: 100px;
+  color: var(--bone);
+  font-family: var(--sans-cn);
+  font-size: 13px;
+}
+.currency__name .code {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--gold-muted);
+  margin-left: 4px;
+}
+.currency__equation {
+  flex: 1;
+  color: var(--steel);
+  font-size: 12px;
+  letter-spacing: -0.01em;
+}
+.currency__equation .positive { color: var(--verdant); }
+.currency__equation .negative { color: var(--ember); }
+.currency__equation .final { color: var(--bone); font-weight: 500; }
+.currency__driver {
+  display: block;
+  margin-top: 4px;
+  padding-left: 114px;
+  font-size: 11px;
+  color: var(--steel-dark);
+  font-family: var(--sans-cn);
+  font-style: italic;
+}
+
+/* ==========================================================================
+   ENTITY TABS
+   ========================================================================== */
+
+.entity-tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 1px solid var(--ink-border);
+  margin-bottom: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.entity-tabs::-webkit-scrollbar { display: none; }
+
+.entity-tab {
+  position: relative;
+  padding: 14px 22px;
+  background: transparent;
+  border: none;
+  color: var(--steel);
+  font-family: var(--serif-cn);
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.03em;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color 180ms ease;
+}
+.entity-tab:hover { color: var(--bone-dim); }
+.entity-tab.active { color: var(--gold-pure); }
+.entity-tab.active::after {
+  content: "";
+  position: absolute;
+  left: 22px;
+  right: 22px;
+  bottom: -1px;
+  height: 2px;
+  background: var(--gold-pure);
+}
+.entity-tab__index {
+  display: inline-block;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--gold-muted);
+  margin-right: 8px;
+}
+.entity-tab.active .entity-tab__index { color: var(--gold-pure); }
+
+.entity-panel {
+  display: none;
+  padding-top: 28px;
+  animation: fadeIn 280ms ease;
+}
+.entity-panel.active { display: block; }
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.entity-grid {
+  display: grid;
+  grid-template-columns: 1.3fr 1fr;
+  gap: 28px;
+}
+
+/* Entity cards */
+.card {
+  background: var(--ink-surface);
+  border: 1px solid var(--ink-border);
+  padding: 22px 24px;
+  margin-bottom: 20px;
+}
+.card__title {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  font-family: var(--serif-cn);
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--bone);
+  letter-spacing: 0.04em;
+  margin-bottom: 16px;
+  padding-bottom: 10px;
+  border-bottom: 1px dashed var(--ink-border-hi);
+}
+.card__title .latin {
+  font-family: var(--serif-la);
+  font-style: italic;
+  font-size: 11px;
+  color: var(--gold-muted);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-weight: 400;
+}
+
+/* Buildings list */
+.building {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 0;
+  font-size: 13px;
+  border-bottom: 1px dotted rgba(58, 70, 94, 0.3);
+}
+.building:last-child { border-bottom: none; }
+.building__name {
+  color: var(--bone-dim);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.building__name::before {
+  content: "◆";
+  color: var(--gold-muted);
+  font-size: 8px;
+}
+.building__count {
+  font-family: var(--mono);
+  color: var(--gold-pure);
+  font-size: 12px;
+}
+.building__meta {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--steel);
+}
+
+/* Inventory */
+.inventory-row {
+  padding: 10px 0;
+  border-bottom: 1px dotted rgba(58, 70, 94, 0.3);
+  font-size: 12px;
+}
+.inventory-row:last-child { border-bottom: none; }
+.inventory-row__name {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 4px;
+  color: var(--bone-dim);
+  font-size: 13px;
+}
+.inventory-row__name .final {
+  font-family: var(--mono);
+  color: var(--bone);
+  font-weight: 500;
+}
+.inventory-row__name .delta {
+  font-family: var(--mono);
+  font-size: 11px;
+  margin-left: 6px;
+}
+.delta.positive { color: var(--verdant); }
+.delta.negative { color: var(--ember); }
+.inventory-row__equation {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--steel-dark);
+  letter-spacing: -0.01em;
+}
+
+/* Quality coloring */
+.q-uncommon { color: var(--q-uncommon) !important; }
+.q-rare     { color: var(--q-rare) !important; }
+.q-epic     { color: var(--q-epic) !important; }
+.q-legend   { color: var(--q-legendary) !important; }
+.q-mythic   { color: var(--q-mythic) !important; }
+.q-unique   { color: var(--q-unique) !important; }
+
+/* Members */
+.member {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 0;
+  font-size: 13px;
+  border-bottom: 1px dotted rgba(58, 70, 94, 0.3);
+}
+.member:last-child { border-bottom: none; }
+.member__name { color: var(--bone-dim); }
+.member__role {
+  font-family: var(--serif-la);
+  font-style: italic;
+  font-size: 11px;
+  color: var(--gold-muted);
+  letter-spacing: 0.1em;
+}
+
+/* Revenue / Expense */
+.ledger-line {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px dotted rgba(58, 70, 94, 0.3);
+  font-size: 12px;
+}
+.ledger-line:last-child { border-bottom: none; }
+.ledger-line__label { color: var(--bone-dim); }
+.ledger-line__calc {
+  display: block;
+  margin-top: 3px;
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--steel-dark);
+  font-style: italic;
+}
+.ledger-line__amount {
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 500;
+  text-align: right;
+  white-space: nowrap;
+}
+.ledger-line__amount.revenue { color: var(--verdant); }
+.ledger-line__amount.expense { color: var(--ember); }
+.ledger-total {
+  display: flex;
+  justify-content: space-between;
+  padding: 12px 0 4px;
+  margin-top: 6px;
+  border-top: 1px solid var(--ink-border);
+  font-family: var(--mono);
+  font-size: 13px;
+}
+.ledger-total .label {
+  color: var(--gold-muted);
+  font-family: var(--serif-la);
+  font-style: italic;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-size: 11px;
+}
+.ledger-total .value { color: var(--bone); font-weight: 500; }
+
+/* Closure check */
+.closure {
+  background: var(--ink-raised);
+  border: 1px solid var(--ink-border);
+  border-left: 2px solid var(--verdant);
+  padding: 14px 18px;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--steel);
+  line-height: 1.9;
+}
+.closure .badge {
+  display: inline-block;
+  padding: 2px 8px;
+  background: rgba(111, 207, 151, 0.12);
+  color: var(--verdant);
+  font-family: var(--serif-la);
+  font-style: italic;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-size: 10px;
+  margin-left: 8px;
+  border: 1px solid rgba(111, 207, 151, 0.3);
+}
+.closure .equation { color: var(--bone-dim); }
+.closure .final {
+  display: block;
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 1px dashed var(--ink-border);
+  color: var(--gold-pure);
+}
+
+.net-income {
+  margin-top: 16px;
+  padding: 14px 20px;
+  background: linear-gradient(90deg, var(--gold-faint) 0%, transparent 100%);
+  border-left: 2px solid var(--gold-pure);
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-family: var(--mono);
+}
+.net-income .label {
+  font-family: var(--serif-cn);
+  font-size: 13px;
+  color: var(--bone);
+}
+.net-income .value {
+  font-size: 18px;
+  color: var(--gold-pure);
+  font-weight: 500;
+}
+.net-income .value.zero { color: var(--steel); }
+
+/* Projects (ops monitoring) */
+.project {
+  padding: 14px 0;
+  border-bottom: 1px dashed var(--ink-border);
+}
+.project:last-child { border-bottom: none; padding-bottom: 0; }
+.project__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 8px;
+}
+.project__name {
+  font-family: var(--serif-cn);
+  font-size: 13px;
+  color: var(--bone);
+  font-weight: 500;
+}
+.project__pct {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--gold-pure);
+}
+.project__bar {
+  height: 3px;
+  background: var(--ink-raised);
+  margin: 10px 0;
+  position: relative;
+  overflow: hidden;
+}
+.project__bar::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  width: var(--pct, 0%);
+  background: linear-gradient(90deg, var(--gold-muted) 0%, var(--gold-pure) 100%);
+  transition: width 800ms ease;
+}
+.project__meta {
+  font-size: 11px;
+  color: var(--steel);
+  line-height: 1.7;
+}
+.project__meta .label {
+  color: var(--gold-muted);
+  font-family: var(--serif-la);
+  font-style: italic;
+  margin-right: 4px;
+}
+
+.manager {
+  padding: 14px 18px;
+  background: var(--ink-raised);
+  border: 1px solid var(--ink-border);
+  margin-bottom: 16px;
+  font-size: 12px;
+}
+.manager__label {
+  font-family: var(--serif-la);
+  font-style: italic;
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  color: var(--gold-muted);
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+.manager__name {
+  font-family: var(--serif-cn);
+  font-size: 15px;
+  color: var(--gold-pure);
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+.manager__focus {
+  color: var(--bone-dim);
+  line-height: 1.6;
+}
+.manager__risk {
+  display: block;
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 1px dotted var(--ink-border-hi);
+  color: var(--ember);
+  font-size: 11px;
+}
+
+/* Footer */
+.footer {
+  margin-top: 60px;
+  padding-top: 24px;
+  border-top: 1px solid var(--ink-border);
+  text-align: center;
+  font-family: var(--serif-la);
+  font-style: italic;
+  font-size: 11px;
+  color: var(--steel-dark);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+.footer .ornament {
+  display: inline-block;
+  margin: 0 12px;
+  color: var(--gold-muted);
+}
+
+/* Responsive */
+@media (max-width: 980px) {
+  .dossier { padding: 24px 20px 60px; }
+  .hero-grid { grid-template-columns: repeat(2, 1fr); }
+  .factors { grid-template-columns: 1fr; }
+  .entity-grid { grid-template-columns: 1fr; }
+  .header__title { font-size: 24px; }
+  .liquidity { padding: 20px; }
+  .liquidity__head { flex-direction: column; gap: 16px; align-items: flex-start; }
+  .liquidity__total { text-align: left; }
+  .currency__driver { padding-left: 0; }
+}
+
+/* Scrollbar (tab row) */
+@media (max-width: 720px) {
+  .entity-tab { padding: 12px 14px; font-size: 13px; }
+}
+</style>
+</head>
+<body>
+
+<main class="dossier">
+
+  <!-- ==================================================================
+       HEADER
+       ================================================================== -->
+  <header class="header">
+    <div class="header__eyebrow">Arcane Operations Dossier · Ledger</div>
+    <div class="header__title-row">
+      <h1 class="header__title">
+        资产与生产<span class="divider"></span>账目汇总
+      </h1>
+      <div class="header__time">
+        <span class="label">Settlement Timestamp</span>
+        <span class="timestamp" id="ts"></span>
+        <span id="gap-hours"></span>
+      </div>
+    </div>
+    <div class="gap-status">
+      <span class="gap-status__pulse"></span>
+      <span id="gap-text"></span>
+    </div>
+  </header>
+
+  <!-- ==================================================================
+       HERO STATS
+       ================================================================== -->
+  <div class="hero-grid">
+    <div class="hero-stat">
+      <div class="hero-stat__label">Period Net</div>
+      <div class="hero-stat__value" id="stat-net"></div>
+      <span class="hero-stat__delta positive" id="stat-net-delta"></span>
+      <span class="hero-stat__sub">本次结算历时 4h</span>
+    </div>
+    <div class="hero-stat">
+      <div class="hero-stat__label">Total Liquidity</div>
+      <div class="hero-stat__value" id="stat-liquid"></div>
+      <span class="hero-stat__delta positive" id="stat-liquid-delta"></span>
+      <span class="hero-stat__sub">多币种折算 · 基准货币 G</span>
+    </div>
+    <div class="hero-stat">
+      <div class="hero-stat__label">Active Entities</div>
+      <div class="hero-stat__value">04<span class="hero-stat__unit">nodes</span></div>
+      <span class="hero-stat__delta">地下实验室 / 温室 / 商铺 / 内城渠道</span>
+    </div>
+    <div class="hero-stat">
+      <div class="hero-stat__label">Production Output</div>
+      <div class="hero-stat__value">13<span class="hero-stat__unit">瓶 / 4h</span></div>
+      <span class="hero-stat__delta">稀有 2 · 优良 4 · 普通 7</span>
+    </div>
+  </div>
+
+  <!-- ==================================================================
+       FACTORS
+       ================================================================== -->
+  <section class="section">
+    <div class="section__head">
+      <span class="section__index">01 /</span>
+      <h2 class="section__title">波动因子</h2>
+      <span class="section__subtitle">Volatility Factors · External &amp; Endogenous</span>
+    </div>
+    <div class="factors">
+      <div class="factor-panel">
+        <div class="factor-panel__title">外在波动因子 · External</div>
+        <div class="factor">
+          <span class="factor__label">月份 / 季节</span>
+          <span class="factor__value">
+            <strong>金秋 · 静谧之月</strong>
+            <span class="factor__meta">药剂需求 ×1.5 · 供需紧俏</span>
+          </span>
+        </div>
+        <div class="factor">
+          <span class="factor__label">治安 / 战乱</span>
+          <span class="factor__value">
+            <strong>碎珊瑚礁异常维持</strong> · 准S级预警持续
+            <span class="factor__meta">运输损耗 +0% · 护卫需求 +120%</span>
+          </span>
+        </div>
+        <div class="factor">
+          <span class="factor__label">市况 / 行情</span>
+          <span class="factor__value">
+            <strong>Torvik 五场全胜热潮</strong>
+            <span class="factor__meta">VIP 区稀有品质供不应求 · 主要品类 →0%</span>
+          </span>
+        </div>
+        <div class="factor">
+          <span class="factor__label">灾害 / 禁运</span>
+          <span class="factor__value">
+            <strong>碎珊瑚礁深渊共振</strong>
+            <span class="factor__meta">冒险者公会 A 级委托 · 禁海令维持 60 海里</span>
+          </span>
+        </div>
+      </div>
+
+      <div class="factor-panel">
+        <div class="factor-panel__title">内生变化因子 · Endogenous</div>
+        <div class="factor">
+          <span class="factor__label">研究 / 工艺</span>
+          <span class="factor__value">
+            <strong>丰饶秘方稀有产线</strong>
+            <span class="factor__meta">Yumia / Aeyfe 产量 ×100% · 品质稀有级</span>
+          </span>
+        </div>
+        <div class="factor">
+          <span class="factor__label">组织 / 士气</span>
+          <span class="factor__value">
+            <strong>内城渠道正式启用</strong>
+            <span class="factor__meta">效率 ×120% · 流失率 ×0%</span>
+          </span>
+        </div>
+        <div class="factor">
+          <span class="factor__label">制度 / 激励</span>
+          <span class="factor__value">
+            <strong>费舍尔内城四店已激活</strong>
+            <span class="factor__meta">Pellaria 渠道对接顺利 · 渠道销售 +2瓶 / 4h</span>
+          </span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================================================================
+       LIQUIDITY
+       ================================================================== -->
+  <section class="section">
+    <div class="section__head">
+      <span class="section__index">02 /</span>
+      <h2 class="section__title">待提取产业流动资金</h2>
+      <span class="section__subtitle">Multi-Currency Liquidity · Closed-Loop</span>
+    </div>
+    <div class="liquidity">
+      <div class="liquidity__head">
+        <div class="liquidity__title">
+          产业流动资金总览
+          <small>Deposited · Totterham 地下金库 &amp; 商铺铁匣</small>
+        </div>
+        <div class="liquidity__total">
+          <span class="label">Period-End Total</span>
+          <span class="value">2,073,433.07<small style="font-size:13px;color:var(--gold-muted);margin-left:6px;">G</small></span>
+          <span class="delta">Δ +2,394.24</span>
+        </div>
+      </div>
+
+      <div class="currency">
+        <div class="currency__row">
+          <div class="currency__name">珍珠币<span class="code">PC</span></div>
+          <div class="currency__equation">
+            期初 <span class="final">2,114,455.55</span>
+            + 流入 <span class="positive">2,450.00</span>
+            − 流出 <span class="negative">0.00</span>
+            = 期末 <span class="final">2,116,905.55</span>
+            <span class="positive" style="margin-left:6px;">(Δ +2,450.00)</span>
+          </div>
+        </div>
+        <span class="currency__driver">商铺持续营业 4h · 7 瓶普通甘露零售</span>
+      </div>
+
+      <div class="currency">
+        <div class="currency__row">
+          <div class="currency__name">金币<span class="code">G</span></div>
+          <div class="currency__equation">
+            期初 <span class="final">−1,127.61</span>
+            + 流入 <span class="positive">0.00</span>
+            − 流出 <span class="negative">6.76</span>
+            = 期末 <span class="final">−1,134.37</span>
+            <span class="negative" style="margin-left:6px;">(Δ −6.76)</span>
+          </div>
+        </div>
+        <span class="currency__driver">4h 商铺固定支出 · 租金 5G + 安保薪饷 1.76G</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================================================================
+       ENTITY PANELS (TABBED)
+       ================================================================== -->
+  <section class="section">
+    <div class="section__head">
+      <span class="section__index">03 /</span>
+      <h2 class="section__title">实体账目详表</h2>
+      <span class="section__subtitle">Per-Entity Breakdown · Assets · Production · Ops</span>
+    </div>
+
+    <div class="entity-tabs" id="tabs"></div>
+    <div id="panels"></div>
+  </section>
+
+  <footer class="footer">
+    <span class="ornament">❖</span>
+    Hereby Sealed · 488 Autumn · Totterham
+    <span class="ornament">❖</span>
+  </footer>
+
+</main>
+
+<script>
+/* ============================================================================
+   LEDGER DATA
+   ----------------------------------------------------------------------------
+   INTEGRATION NOTE FOR EDWIN:
+   With JS-Slash-Runner, replace LEDGER_DATA with a function that pulls from
+   SillyTavern's variable system:
+
+     const raw = getVariables({ type: 'character' }).LatestLedger;
+     const data = parseYourLedger(raw);  // your own parser
+
+   Or emit structured JSON from the LLM into a variable and read it directly.
+   The hardcoded data below mirrors the 488/09/06 15:05 example output.
+   ============================================================================ */
+
+const LEDGER_DATA = {
+  timestamp: "488年 09月 06日 15:05",
+  gapHours: 4,
+  gapText: "触发账目结算更新（初始化 WorldPaper） · 账目结算时间 Reset",
+  periodNet: "+2,394.24",
+  periodNetUnit: "G",
+  totalLiquid: "2,073,433.07",
+  liquidDelta: "+2,394.24",
+
+  entities: [
+    {
+      key: "shop",
+      name: "北栈桥十字路口商铺",
+      latin: "Shop · Silversail Harbor",
+      location: "银帆城码头区",
+      buildings: [
+        { name: "临街铺面", count: 1, status: "正常营业", maint: "900.00 G/月" }
+      ],
+      inventory: [
+        { name: "珍珠粉保健甘露", quality: "common", q0: 80, flow_in: 0, flow_out: 7, q1: 73, delta: -7, unit: "瓶", sink: "零售约4h" },
+        { name: "珍珠粉保健甘露 (琉璃瓶装)", quality: "uncommon", q0: 6, flow_in: 0, flow_out: 0, q1: 6, delta: 0, unit: "瓶", sink: "待内城高端客户" }
+      ],
+      members: [
+        { name: "Nugent Hurn", role: "提成制店长" },
+        { name: "雇佣兵安保 ×3", role: "Gorram / 日值 0.44G·h" }
+      ],
+      revenue: [
+        { label: "普通甘露零售", calc: "350 PC × 7 = 2,450 PC", amount: "+2,450.00 PC" }
+      ],
+      revenueTotal: "+2,401.00 G (2,450 PC × 0.98)",
+      expense: [
+        { label: "铺面租金摊销", calc: "1.25 G/h × 4h", amount: "−5.00 G" },
+        { label: "雇佣兵安保薪饷", calc: "0.44 G/h × 4h", amount: "−1.76 G" }
+      ],
+      expenseTotal: "−6.76 G",
+      closure: {
+        status: "Pass",
+        cash0: "97,494.30",
+        cash1: "99,888.54",
+        equation: "97,494.30 + 2,401.00 − 6.76 ± 0.00 = 99,888.54 G"
+      },
+      netIncome: "+2,394.24",
+      manager: {
+        name: "Nugent Hurn",
+        focus: "库存周转维持 / 紧急补货需求 / 内城渠道协同监控",
+        risk: "当前库存 73 瓶仅可支撑约 1.8 天销售 · 需立即安排庄园调拨"
+      },
+      projects: [
+        { name: "普通甘露库存周转维持", pct: 40, phase: "期末库存 73 瓶 / 日均销售 40 瓶", eta: "48h 内需补货", impact: "维持日均收入 14,000 PC" },
+        { name: "内城渠道协同对接", pct: 80, phase: "码头区专注普通品质零售", eta: "持续", impact: "避免品质混淆 · 客群分层清晰" },
+        { name: "黑珍珠戒指人动向追踪", pct: 40, phase: "近日未出现 · 注意力或转向 VIP 区", eta: "持续监控", impact: "韦尔家族情报 · 潜在商业威胁评估" }
+      ]
+    },
+    {
+      key: "lab",
+      name: "Totterham 地下实验室",
+      latin: "Subterranean Laboratory",
+      location: "Totterham 旧庄园",
+      buildings: [
+        { name: "核心炼金操作台", count: 1, status: "Full", maint: "1.50 G/月" },
+        { name: "生物改造提取椅", count: 4, status: "Full", maint: "6.00 G/月" },
+        { name: "活塞式真空吸乳泵组", count: 4, status: "Full", maint: "3.00 G/月" },
+        { name: "机械阴道插入装置", count: 2, status: "Full", maint: "1.50 G/月" },
+        { name: "沙漏滴注式自动给药器", count: 2, status: "Normal", maint: "3.00 G/月" }
+      ],
+      inventory: [
+        { name: "万象甘露 · 初乳 (普通)", quality: "common", q0: 630, flow_in: 7, flow_out: 0, q1: 637, delta: 7, unit: "瓶", sink: "Pella+Shulenne 约42瓶/日 × 0.167日" },
+        { name: "万象甘露 (优良)", quality: "uncommon", q0: 253, flow_in: 4, flow_out: 0, q1: 257, delta: 4, unit: "瓶", sink: "T-3 约22瓶/日" },
+        { name: "万象甘露 (稀有)", quality: "rare", q0: 190, flow_in: 2, flow_out: 0, q1: 192, delta: 2, unit: "瓶", sink: "Yumia+Aeyfe 约14瓶/日" },
+        { name: "琉璃防散逸药瓶", quality: "common", q0: 0, flow_in: 0, flow_out: 0, q1: 0, delta: 0, unit: "个", sink: "库存告急 · 紧急采购中" }
+      ],
+      members: [
+        { name: "Yumia Lisveille", role: "稀有线 · 日均 8 瓶" },
+        { name: "Pella / Shulenne", role: "普通线 · 24h 可用" },
+        { name: "T-3 / T-4", role: "优良线 · 24h 可用" }
+      ],
+      revenue: [],
+      revenueTotal: "+0.00 G (费舍尔月供已结 · 菲尔德周结待周末交付)",
+      expense: [],
+      expenseTotal: "−0.00 G (维护费按月度结算 · 本期 4h 不触发节点)",
+      closure: {
+        status: "Pass",
+        cash0: "1,176,000.00",
+        cash1: "1,176,000.00",
+        equation: "1,176,000.00 + 0.00 − 0.00 ± 0.00 = 1,176,000.00 G"
+      },
+      netIncome: "0.00",
+      manager: {
+        name: "Yumia Lisveille",
+        focus: "稀有产线持续高产 / 菲尔德周结履约推进 / 琉璃瓶紧急采购 / 商铺补货调拨准备",
+        risk: "琉璃瓶库存 0 持续 · 稀有产品暂以原料形式储存 · 影响正式交付效率"
+      },
+      projects: [
+        { name: "菲尔德家族百万 PC 长单履约", pct: 80, phase: "费舍尔月供 30 瓶已全额结算 / 菲尔德周结 100 瓶履约中", eta: "本周末", impact: "收入 +3,500,000 PC / 周 (100 × 50,000 × 0.7)" },
+        { name: "VIP 区增量需求应对", pct: 20, phase: "Dessich 反馈 7 人求购 · Verand 幕僚求包月 5 瓶", eta: "待定", impact: "潜在周收入 +250,000 PC 以上" },
+        { name: "琉璃瓶容器紧急采购", pct: 0, phase: "库存持续为 0 · 需紧急联络供应商", eta: "2 天内", impact: "解除装瓶瓶颈 · 恢复正常交付" },
+        { name: "商铺补货调拨准备", pct: 80, phase: "庄园库存 637 瓶充足 / 商铺 73 瓶告急", eta: "48h 内", impact: "补充商铺至 200 瓶以上 · 维持 5 天销售" }
+      ]
+    },
+    {
+      key: "greenhouse",
+      name: "恒温培植温室",
+      latin: "Arcane Greenhouse",
+      location: "Totterham 旧庄园",
+      buildings: [
+        { name: "恒温培植温室本体", count: 1, status: "Normal", maint: "8.00 G/月" },
+        { name: "锑铜合金灌溉系统", count: 1, status: "Normal", maint: "3.00 G/月" },
+        { name: "扩建框架与新苗床", count: 1, status: "Complete · 全面投产", maint: "2.00 G/月" }
+      ],
+      inventory: [
+        { name: "药草幼苗 (银叶草 / 苔藓)", quality: "uncommon", q0: 5.6353, flow_in: 0, flow_out: 0, q1: 5.6403, delta: 0.005, unit: "批", sink: "自然增长" }
+      ],
+      members: [
+        { name: "Aeyfe Sylphael", role: "精灵药草师 · 稀有线 6 瓶/日" }
+      ],
+      revenue: [],
+      revenueTotal: "+0.00 G (内部原料培植基地 · 无直接对外销售)",
+      expense: [],
+      expenseTotal: "−0.00 G (维护费按月度结算)",
+      closure: {
+        status: "Pass",
+        cash0: "0.00",
+        cash1: "0.00",
+        equation: "0.00 + 0.00 − 0.00 ± 0.00 = 0.00 G"
+      },
+      netIncome: "0.00",
+      manager: {
+        name: "Aeyfe Sylphael",
+        focus: "银叶草最终采收倒计时 / 温室全面稳定运营",
+        risk: null
+      },
+      projects: [
+        { name: "银叶草首批采收周期", pct: 92, phase: "距可采收约 1.83 天", eta: "488年 9月 8日", impact: "自产稀有级炼金原料 · 降低外购依赖" },
+        { name: "深蓝苔藓培育观察", pct: 60, phase: "扩建区苗床运行正常 · 苔藓生长良好", eta: "持续", impact: "精灵药草自给能力提升" }
+      ]
+    },
+    {
+      key: "channel",
+      name: "费舍尔合作渠道",
+      latin: "Fischer Inner-City Network",
+      location: "银帆城内城",
+      buildings: [
+        { name: "内城海产精品店渠道", count: 3, status: "Active", maint: "费舍尔代付" },
+        { name: "内城珍珠饰品行渠道", count: 1, status: "Active", maint: "费舍尔代付" }
+      ],
+      inventory: [
+        { name: "优良甘露 (深蓝缎面礼盒装)", quality: "uncommon", q0: 164, flow_in: 0, flow_out: 2, q1: 162, delta: -2, unit: "瓶", sink: "内城四店零售约 4h" }
+      ],
+      members: [
+        { name: "Pellaria Auvigne", role: "费舍尔内城零售总管" }
+      ],
+      revenue: [
+        { label: "内城四店优良甘露零售 (挂账)", calc: "4,000 G × 2 × 0.8 = 6,400 G 应收", amount: "+0.00 现金" }
+      ],
+      revenueTotal: "+0.00 G 现金入账 · 应收 +6,400 G · 累计应收 121,600 G",
+      expense: [],
+      expenseTotal: "−0.00 G (渠道维护由费舍尔家族代付)",
+      closure: {
+        status: "Pass",
+        cash0: "0.00",
+        cash1: "0.00",
+        equation: "0.00 + 0.00 − 0.00 ± 0.00 = 0.00 G · 应收挂账不计入现金流"
+      },
+      netIncome: "0.00",
+      manager: {
+        name: "Pellaria Auvigne",
+        focus: "Kendrick Totterham 实地考察接待 / 渠道销售数据跟踪 / 超额定价策略 / 陆行药水市场情报披露",
+        risk: "日均 9 瓶销售超预期 · 本月有望突破 200 瓶配额 · 需协商超额条款"
+      },
+      projects: [
+        { name: "Kendrick Totterham 实地考察", pct: 100, phase: "已抵达银鳞支店 · 门已上锁私密谈话", eta: "进行中", impact: "深化渠道 · 陆行药水市场情报获取" },
+        { name: "内城渠道销售跟踪", pct: 80, phase: "累计 38 瓶 · 日均 9 瓶 · 预计月销 270 瓶", eta: "持续", impact: "超配额 70 瓶需协商 30% 佣金或 5,500 G 提价" },
+        { name: "超额定价策略", pct: 20, phase: "Pellaria 提议超额部分提价至 5,500 G", eta: "待定", impact: "超额部分净收入 3,200 → 3,850 G/瓶" },
+        { name: "月底回款结算", pct: 20, phase: "应收账款 121,600 G 待月底结算", eta: "9月底", impact: "现金回流 +121,600 G" }
+      ]
+    }
+  ]
+};
+
+/* ============================================================================
+   RENDER
+   ============================================================================ */
+
+const $ = (sel) => document.querySelector(sel);
+
+// Header
+$("#ts").textContent = LEDGER_DATA.timestamp;
+$("#gap-hours").textContent = `Δ ${LEDGER_DATA.gapHours}h`;
+$("#gap-text").innerHTML = `结算门禁 · <strong>${LEDGER_DATA.gapText}</strong>`;
+
+// Hero
+$("#stat-net").innerHTML = LEDGER_DATA.periodNet + `<span class="hero-stat__unit">${LEDGER_DATA.periodNetUnit}</span>`;
+$("#stat-net-delta").textContent = "盈利 · Positive";
+$("#stat-liquid").innerHTML = LEDGER_DATA.totalLiquid + `<span class="hero-stat__unit">G</span>`;
+$("#stat-liquid-delta").textContent = `Δ ${LEDGER_DATA.liquidDelta}`;
+
+// Tabs + panels
+const tabsEl = $("#tabs");
+const panelsEl = $("#panels");
+
+LEDGER_DATA.entities.forEach((ent, i) => {
+  const btn = document.createElement("button");
+  btn.className = "entity-tab" + (i === 0 ? " active" : "");
+  btn.dataset.key = ent.key;
+  btn.innerHTML = `<span class="entity-tab__index">0${i+1}</span>${ent.name}`;
+  btn.onclick = () => selectTab(ent.key);
+  tabsEl.appendChild(btn);
+
+  const panel = document.createElement("div");
+  panel.className = "entity-panel" + (i === 0 ? " active" : "");
+  panel.dataset.key = ent.key;
+  panel.innerHTML = renderEntity(ent);
+  panelsEl.appendChild(panel);
+});
+
+function selectTab(key) {
+  document.querySelectorAll(".entity-tab").forEach(t => t.classList.toggle("active", t.dataset.key === key));
+  document.querySelectorAll(".entity-panel").forEach(p => p.classList.toggle("active", p.dataset.key === key));
+}
+
+function renderEntity(ent) {
+  const buildingsHtml = ent.buildings.map(b => `
+    <div class="building">
+      <span class="building__name">${b.name}</span>
+      <span class="building__count">×${b.count}</span>
+      <span class="building__meta">${b.status} · ${b.maint}</span>
+    </div>
+  `).join("");
+
+  const inventoryHtml = ent.inventory.map(inv => {
+    const deltaClass = inv.delta > 0 ? "positive" : (inv.delta < 0 ? "negative" : "");
+    const deltaSign = inv.delta > 0 ? "+" : "";
+    const qClass = qualityClass(inv.quality);
+    return `
+      <div class="inventory-row">
+        <div class="inventory-row__name">
+          <span class="${qClass}">${inv.name}</span>
+          <span>
+            <span class="final">${inv.q1}</span> ${inv.unit}
+            <span class="delta ${deltaClass}">(${deltaSign}${inv.delta})</span>
+          </span>
+        </div>
+        <div class="inventory-row__equation">
+          期初 ${inv.q0} + ${inv.flow_in} − ${inv.flow_out} = ${inv.q1}
+          ${inv.sink ? ` · ${inv.sink}` : ""}
+        </div>
+      </div>
+    `;
+  }).join("");
+
+  const membersHtml = ent.members.map(m => `
+    <div class="member">
+      <span class="member__name">${m.name}</span>
+      <span class="member__role">${m.role}</span>
+    </div>
+  `).join("");
+
+  const revenueHtml = ent.revenue.length ? ent.revenue.map(r => `
+    <div class="ledger-line">
+      <span class="ledger-line__label">
+        ${r.label}
+        <span class="ledger-line__calc">${r.calc}</span>
+      </span>
+      <span class="ledger-line__amount revenue">${r.amount}</span>
+    </div>
+  `).join("") : `<div class="ledger-line"><span class="ledger-line__label" style="color:var(--steel-dark);font-style:italic;">本期无直接收入</span></div>`;
+
+  const expenseHtml = ent.expense.length ? ent.expense.map(e => `
+    <div class="ledger-line">
+      <span class="ledger-line__label">
+        ${e.label}
+        <span class="ledger-line__calc">${e.calc}</span>
+      </span>
+      <span class="ledger-line__amount expense">${e.amount}</span>
+    </div>
+  `).join("") : `<div class="ledger-line"><span class="ledger-line__label" style="color:var(--steel-dark);font-style:italic;">本期无支出条目</span></div>`;
+
+  const projectsHtml = ent.projects.map(p => `
+    <div class="project">
+      <div class="project__head">
+        <span class="project__name">${p.name}</span>
+        <span class="project__pct">${p.pct}%</span>
+      </div>
+      <div class="project__bar" style="--pct: ${p.pct}%;"></div>
+      <div class="project__meta">
+        <span class="label">进度</span>${p.phase}<br>
+        <span class="label">ETA</span>${p.eta}
+        <span style="margin:0 8px;color:var(--whisper);">·</span>
+        <span class="label">影响</span>${p.impact}
+      </div>
+    </div>
+  `).join("");
+
+  const netIncomeValue = parseFloat(ent.netIncome.replace(/,/g, ""));
+  const netZero = netIncomeValue === 0 ? "zero" : "";
+
+  return `
+    <div class="entity-grid">
+      <div class="col-left">
+        <div class="card">
+          <div class="card__title">
+            📦 资产分布
+            <span class="latin">Asset Distribution</span>
+          </div>
+          ${buildingsHtml}
+          <div style="margin-top:18px;padding-top:14px;border-top:1px dashed var(--ink-border-hi);">
+            <div style="font-family:var(--serif-la);font-style:italic;font-size:11px;letter-spacing:0.15em;color:var(--gold-muted);text-transform:uppercase;margin-bottom:10px;">Warehouse Reserves</div>
+            ${inventoryHtml}
+          </div>
+          <div style="margin-top:18px;padding-top:14px;border-top:1px dashed var(--ink-border-hi);">
+            <div style="font-family:var(--serif-la);font-style:italic;font-size:11px;letter-spacing:0.15em;color:var(--gold-muted);text-transform:uppercase;margin-bottom:10px;">Personnel</div>
+            ${membersHtml}
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card__title">
+            💹 收支流水
+            <span class="latin">Period Cash Flow</span>
+          </div>
+          <div style="font-family:var(--serif-la);font-style:italic;font-size:11px;letter-spacing:0.15em;color:var(--verdant);text-transform:uppercase;margin-bottom:6px;">Revenue</div>
+          ${revenueHtml}
+          <div class="ledger-total">
+            <span class="label">Revenue Total</span>
+            <span class="value">${ent.revenueTotal}</span>
+          </div>
+
+          <div style="font-family:var(--serif-la);font-style:italic;font-size:11px;letter-spacing:0.15em;color:var(--ember);text-transform:uppercase;margin:20px 0 6px;">Expense</div>
+          ${expenseHtml}
+          <div class="ledger-total">
+            <span class="label">Expense Total</span>
+            <span class="value">${ent.expenseTotal}</span>
+          </div>
+
+          <div class="closure" style="margin-top:18px;">
+            <strong style="color:var(--bone);font-family:var(--serif-cn);">收支闭环校验</strong>
+            <span class="badge">${ent.closure.status}</span><br>
+            <span class="equation">期初 ${ent.closure.cash0} + 收入 − 支出 ± 非经营项 = 期末 ${ent.closure.cash1}</span>
+            <span class="final">${ent.closure.equation}</span>
+          </div>
+
+          <div class="net-income">
+            <span class="label">该实体净值 · Net Income</span>
+            <span class="value ${netZero}">${ent.netIncome} G / 4h</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-right">
+        <div class="card">
+          <div class="card__title">
+            🧭 运营监控
+            <span class="latin">Operations Monitor</span>
+          </div>
+          <div class="manager">
+            <div class="manager__label">Key Manager</div>
+            <div class="manager__name">${ent.manager.name}</div>
+            <div class="manager__focus">${ent.manager.focus}</div>
+            ${ent.manager.risk ? `<span class="manager__risk">⚠ ${ent.manager.risk}</span>` : ""}
+          </div>
+          ${projectsHtml}
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function qualityClass(q) {
+  const map = {
+    common: "q-common",
+    uncommon: "q-uncommon",
+    rare: "q-rare",
+    epic: "q-epic",
+    legendary: "q-legend",
+    mythic: "q-mythic",
+    unique: "q-unique"
+  };
+  return map[q] || "";
+}
+</script>
+</body>
+</html>
